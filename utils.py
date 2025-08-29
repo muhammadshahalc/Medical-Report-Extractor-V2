@@ -1,5 +1,3 @@
-
-#utils.py
 def initialize_record():
     """Initialize an empty medical record structure."""
     return {

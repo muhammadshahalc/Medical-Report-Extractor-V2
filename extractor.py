@@ -1,4 +1,3 @@
-
 from groq import Groq
 import base64
 import pdfplumber

@@ -1,4 +1,3 @@
-
 import pandas as pd
 
 def save_to_csv(merged_data, file_name, output_path="data/extracted_reports.csv"):
