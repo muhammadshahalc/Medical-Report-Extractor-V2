@@ -1,5 +1,7 @@
-#app.py
+
+
 import os
+import json
 import streamlit as st
 from dotenv import load_dotenv
 from extractor import MedicalPDFExtractor
@@ -7,7 +9,6 @@ from utils import initialize_record, merge_records
 from save_to_csv import save_to_csv
 from PIL import Image
 
-# Load API key
 load_dotenv()
 api_key = os.getenv("GROQ_API_KEY")
 
@@ -25,7 +26,7 @@ uploaded_files = st.file_uploader(
 
 if uploaded_files:
     extractor = MedicalPDFExtractor(api_key)
-    all_data = []  # store all results for CSV
+    all_data = []  # store all results for CSV + JSON
 
     for uploaded_file in uploaded_files:
         st.subheader(f"📄 Processing: {uploaded_file.name}")
@@ -61,7 +62,17 @@ if uploaded_files:
                 if page_data:
                     merged_data = merge_records(merged_data, page_data)
 
+        # Show results
         st.json(merged_data)
+
+        # Individual JSON download
+        json_str = json.dumps(merged_data, indent=4)
+        st.download_button(
+            label=f"📥 Download {uploaded_file.name} JSON",
+            data=json_str,
+            file_name=f"{uploaded_file.name}_extracted.json",
+            mime="application/json"
+        )
 
         # Store data with file name
         all_data.append((merged_data, uploaded_file.name))
@@ -73,7 +84,7 @@ if uploaded_files:
 
     st.success(f"✅ Extracted data from {len(all_data)} reports. Saved to {output_file}")
 
-    # Download button
+    # CSV download
     with open(output_file, "rb") as f:
         st.download_button(
             label="📥 Download All Extracted Data as CSV",
@@ -81,3 +92,13 @@ if uploaded_files:
             file_name="extracted_reports.csv",
             mime="text/csv",
         )
+
+    # JSON download (all reports together)
+    all_json = {file_name: data for data, file_name in all_data}
+    all_json_str = json.dumps(all_json, indent=4)
+    st.download_button(
+        label="📥 Download All Extracted Data as JSON",
+        data=all_json_str,
+        file_name="extracted_reports.json",
+        mime="application/json",
+    )

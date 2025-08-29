@@ -1,12 +1,11 @@
 
-#extractor.py
 from groq import Groq
 import base64
 import pdfplumber
 from io import BytesIO
 import json
 import streamlit as st
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 
 class MedicalPDFExtractor:
@@ -52,13 +51,36 @@ class MedicalPDFExtractor:
                             {
                                 "type": "text",
                                 "text": (
-                                    "You are an expert medical data extractor. "
-                                    "Extract strictly in JSON with this schema:\n"
+                                    "You are an expert medical data analyst. "
+                                    "Extract the following information from the provided medical report "
+                                    "and output it strictly as a JSON object.\n\n"
+                                    "**Required JSON Schema:**\n"
                                     "{\n"
-                                    '  \"patient\": { \"name\": \"\", \"age\": \"\", \"gender\": \"\", \"date_of_report\": \"\" },\n'
-                                    '  \"tests\": [ { \"test_name\": \"\", \"value\": \"\", \"unit\": \"\" } ],\n'
-                                    '  \"diagnosis\": \"\"\n'
-                                    "}"
+                                    '  \"patient\": {\n'
+                                    '    \"name\": \"str | null\",\n'
+                                    '    \"age\": \"str | null\",\n'
+                                    '    \"gender\": \"str | null\",\n'
+                                    '    \"date_of_report\": \"str | null\"\n'
+                                    "  },\n"
+                                    '  \"tests\": [\n'
+                                    '    {\n'
+                                    '      \"test_name\": \"str\",\n'
+                                    '      \"value\": \"str\",\n'
+                                    '      \"unit\": \"str | null\"\n'
+                                    "    }\n"
+                                    "  ],\n"
+                                    '  \"diagnosis\": \"str\"\n'
+                                    "}\n\n"
+                                    "**Extraction Rules:**\n"
+                                    "1. Patient Details: Extract name, age, gender, and report date.\n"
+                                    "2. Tests:\n"
+                                    "   - Each test result goes into the `tests` array.\n"
+                                    "   - Include test_name, value, and unit (or null if missing).\n"
+                                    "3. Diagnosis/Observations (critical):\n"
+                                    "   - Extract any final diagnosis, impression, conclusion, or key observation.\n"
+                                    "   - If multiple findings, join with '; '.\n"
+                                    "   - If no diagnosis found, use 'Not Mentioned'.\n"
+                                    "   - DO NOT omit this field."
                                 ),
                             },
                             {
