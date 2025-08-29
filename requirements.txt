@@ -4,4 +4,3 @@ pdfplumber==0.11.0
 Pillow==10.4.0
 groq==0.31.0
 pandas==2.2.2
-python-dotenv
